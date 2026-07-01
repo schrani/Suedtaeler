@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Südtäler Tagebuch">
+    <title>🚌 Südtäler Fototagebuch 2026</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b0b0b0;
+            --accent: #667eea;
+            --accent-light: #764ba2;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --border: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            padding: 30px 15px;
+            text-align: center;
+            margin: -15px -15px 30px -15px;
+            margin-top: calc(env(safe-area-inset-top) * -1 - 15px);
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .day-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-selector select {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .day-selector select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .add-day-btn {
+            padding: 12px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background 0.3s;
+        }
+
+        .add-day-btn:active {
+            background: var(--accent-light);
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .entry {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .entry-time {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .entry-type {
+            display: inline-block;
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+
+        .text-entry {
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: var(--text-primary);
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .photo-entry {
+            width: 100%;
+            border-radius: 10px;
+            margin: 10px 0;
+            max-height: 400px;
+            object-fit: cover;
+        }
+
+        .photo-caption {
+            margin-top: 10px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .voice-entry {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .audio-duration {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+        }
+
+        .entry-delete {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .input-section {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid var(--border);
+        }
+
+        .input-section h3 {
+            margin-bottom: 15px;
+            color: var(--accent);
+            font-size: 1.1em;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-photo {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-text {
+            background: var(--accent-light);
+            color: white;
+        }
+
+        .btn-voice {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .btn.recording {
+            background: var(--danger);
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 10px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .file-input-label:active {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+        }
+
+        .voice-controls {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .voice-controls p {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .voice-status {
+            font-size: 0.85em;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .voice-transcript {
+            background: var(--bg-secondary);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .export-section {
+            background: var(--bg-secondary);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+
+        .export-btn {
+            padding: 12px 24px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .info-box {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .day-selector {
+                flex-direction: column;
+            }
+
+            .day-selector select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚌 Südtäler Tagebuch</h1>
+        <p>17. Juli – 30. Juli 2026</p>
+    </header>
+
+    <!-- Toast Notification -->
+    <div id="toast" style="display:none; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 20px; border-radius:20px; font-size:0.9em; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.4); max-width:90vw; text-align:center;"></div>
+
+    <!-- New Day Modal -->
+    <div id="newDayModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#1a1a1a; border-radius:15px; padding:24px; width:90vw; max-width:400px; border:1px solid #333;">
+            <h3 style="margin-bottom:16px; color:#667eea;">Neuer Tag</h3>
+            <p style="font-size:0.85em; color:#888; margin-bottom:12px;">Ort / Tal für diesen Tag:</p>
+            <select id="newDayLocation" style="width:100%; padding:12px; background:#2d2d2d; color:#e8e8e8; border:2px solid #444; border-radius:10px; font-size:1em; margin-bottom:10px;">
+                <option value="">-- Ort wählen --</option>
+                <option value="Misox">Misox</option>
+                <option value="Calancatal">Calancatal</option>
+                <option value="Bergell">Bergell</option>
+                <option value="Puschlav">Puschlav</option>
+                <option value="Val Müstair">Val Müstair</option>
+                <option value="Unterwegs">Unterwegs</option>
+            </select>
+            <input id="newDayCustom" type="text" placeholder="Oder eigener Name..." style="width:100%; padding:12px; background:#2d2d2d; color:#e8e8e8; border:2px solid #444; border-radius:10px; font-size:1em; margin-bottom:16px; font-family:inherit;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="cancelNewDay()" style="flex:1; padding:12px; background:#333; color:#ccc; border:none; border-radius:10px; font-size:1em; cursor:pointer;">Abbrechen</button>
+                <button onclick="confirmNewDay()" style="flex:1; padding:12px; background:#667eea; color:white; border:none; border-radius:10px; font-size:1em; font-weight:600; cursor:pointer;">Tag erstellen</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Day Selector -->
+        <div class="day-selector">
+            <select id="daySelect" onchange="loadDay()">
+                <option value="">-- Wähle einen Tag --</option>
+            </select>
+            <button class="add-day-btn" onclick="openNewDayModal()">+ Tag</button>
+        </div>
+
+        <!-- Debug Panel -->
+        <div style="text-align: center; margin-bottom: 15px;">
+            <button style="padding: 8px 12px; background: #555; color: white; border: none; border-radius: 6px; font-size: 0.8em; cursor: pointer;" onclick="toggleDebug()">🔧 Debug</button>
+        </div>
+        <div id="debugPanel" style="display:none; background:#1a1a1a; border:1px solid #444; border-radius:10px; padding:15px; margin-bottom:20px; font-size:0.8em; color:#aaa; line-height:1.8;"></div>
+
+        <!-- Input Section -->
+        <div class="input-section" id="inputSection" style="display: none;">
+            <h3>Eintrag hinzufügen</h3>
+            
+            <div class="button-group">
+                <button class="btn btn-photo" onclick="document.getElementById('photoInput').click()">
+                    📸 Foto
+                </button>
+                <button class="btn btn-text" onclick="toggleTextInput()">
+                    📝 Text
+                </button>
+                <button class="btn btn-voice" onclick="toggleVoiceInput()">
+                    🎤 Voice
+                </button>
+            </div>
+
+            <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+
+            <!-- Text Input -->
+            <div id="textInputDiv" style="display: none;">
+                <textarea id="textInput" placeholder="Schreib deine Gedanken..."></textarea>
+                <button class="submit-btn" onclick="addTextEntry()">Notiz speichern</button>
+            </div>
+
+            <!-- Photo Caption -->
+            <div id="photoCaptionDiv" style="display: none;">
+                <div class="file-input-label" id="photoPreview">
+                    📸 Foto ausgewählt
+                </div>
+
+                <div class="voice-controls">
+                    <p>Caption (Text oder Voice)</p>
+                    <textarea id="captionText" placeholder="Bildunterschrift eingeben..." style="min-height: 60px; margin-bottom: 10px;"></textarea>
+                    
+                    <button class="btn btn-voice" id="voiceCaptionBtn" onclick="toggleVoiceCaption()" style="width: 100%;">
+                        🎤 Caption sprechen
+                    </button>
+                    
+                    <div id="captionVoiceStatus" style="display: none;">
+                        <div class="voice-status">🎤 Aufnahme läuft...</div>
+                        <div class="voice-transcript" id="captionTranscript"></div>
+                    </div>
+                </div>
+
+                <button class="submit-btn" onclick="addPhotoEntry()">Foto speichern</button>
+            </div>
+
+            <!-- Voice Input -->
+            <div id="voiceInputDiv" style="display: none;">
+                <div class="voice-controls">
+                    <p>Sprich deine Notiz</p>
+                    <button class="btn btn-voice" id="recordBtn" onclick="toggleVoiceRecording()" style="width: 100%;">
+                        🎤 Aufnahme starten
+                    </button>
+                    
+                    <div id="voiceStatus" style="display: none;">
+                        <div class="voice-status">🎤 Aufnahme läuft...</div>
+                        <div class="voice-transcript" id="voiceTranscript"></div>
+                    </div>
+                </div>
+
+                <button class="submit-btn" id="voiceSubmitBtn" onclick="addVoiceEntry()" disabled>Memo speichern</button>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline" id="timeline"></div>
+
+        <!-- Export Section -->
+        <div class="export-section">
+            <button class="export-btn" onclick="exportData()">📥 Alle Daten exportieren</button>
+        </div>
+    </div>
+
+    <script>
+        // ============ DATA MANAGEMENT ============
+        const STORAGE_KEY = 'sudtaeler_tagebuch';
+        let currentDay = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let captionMediaRecorder = null;
+        let captionAudioChunks = [];
+        let currentPhotoData = null;
+
+        // ============ TOAST (ersetzt alle alert()) ============
+        function showToast(msg, duration = 2500) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => { t.style.display = 'none'; }, duration);
+        }
+
+        // Initialize app
+        window.addEventListener('load', () => {
+            initializeDays();
+            loadDay();
+            setupVoiceRecognition();
+        });
+
+        function initializeDays() {
+            const data = loadData();
+            const select = document.getElementById('daySelect');
+            
+            select.innerHTML = '<option value="">-- Wähle einen Tag --</option>';
+            
+            Object.keys(data).forEach(dayKey => {
+                const option = document.createElement('option');
+                option.value = dayKey;
+                option.textContent = `📍 ${data[dayKey].location} (${dayKey})`;
+                select.appendChild(option);
+            });
+        }
+
+        // ============ NEW DAY MODAL ============
+        function openNewDayModal() {
+            const data = loadData();
+            const dayNum = Object.keys(data).length + 1;
+            const suggestions = ['Misox', 'Calancatal', 'Bergell', 'Puschlav', 'Val Müstair'];
+            const sel = document.getElementById('newDayLocation');
+            // Vorschlag setzen
+            if (dayNum <= suggestions.length) {
+                sel.value = suggestions[dayNum - 1];
+            } else {
+                sel.value = '';
+            }
+            document.getElementById('newDayCustom').value = '';
+            const modal = document.getElementById('newDayModal');
+            modal.style.display = 'flex';
+        }
+
+        function cancelNewDay() {
+            document.getElementById('newDayModal').style.display = 'none';
+        }
+
+        function confirmNewDay() {
+            const sel = document.getElementById('newDayLocation').value;
+            const custom = document.getElementById('newDayCustom').value.trim();
+            const location = custom || sel;
+
+            if (!location) {
+                showToast('⚠️ Bitte Ort eingeben oder wählen');
+                return;
+            }
+
+            const data = loadData();
+            const dayNum = Object.keys(data).length + 1;
+            const dateKey = new Date().toISOString().split('T')[0];
+            const dayKey = `Tag ${dayNum} - ${dateKey}`;
+
+            data[dayKey] = {
+                location: location,
+                date: new Date().toISOString(),
+                entries: []
+            };
+
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                cancelNewDay();
+                initializeDays();
+                const select = document.getElementById('daySelect');
+                select.value = dayKey;
+                loadDay();
+                showToast('✅ Tag erstellt: ' + location);
+            } catch (e) {
+                showToast('❌ Speichern fehlgeschlagen: ' + e.message);
+                console.error('Storage error:', e);
+            }
+        }
+
+        function loadDay() {
+            const select = document.getElementById('daySelect');
+            currentDay = select.value;
+            
+            if (!currentDay) {
+                document.getElementById('inputSection').style.display = 'none';
+                document.getElementById('timeline').innerHTML = '<div class="empty-state"><p>👈 Wähle oder erstelle einen Tag</p></div>';
+                return;
+            }
+
+            document.getElementById('inputSection').style.display = 'block';
+            renderTimeline();
+            resetInputs();
+        }
+
+        function renderTimeline() {
+            const data = loadData();
+            const dayData = data[currentDay];
+            const timeline = document.getElementById('timeline');
+
+            if (!dayData || dayData.entries.length === 0) {
+                timeline.innerHTML = '<div class="empty-state"><p>Noch keine Einträge für diesen Tag 📝</p></div>';
+                return;
+            }
+
+            timeline.innerHTML = dayData.entries
+                .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+                .map((entry, idx) => renderEntry(entry, idx))
+                .join('');
+        }
+
+        function renderEntry(entry, idx) {
+            const time = new Date(entry.timestamp).toLocaleTimeString('de-DE', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            let html = `<div class="entry">
+                <div class="entry-time">${time}</div>`;
+
+            if (entry.type === 'text') {
+                html += `<div><span class="entry-type">📝</span></div>
+                        <div class="text-entry">${escapeHtml(entry.content)}</div>`;
+            } 
+            else if (entry.type === 'photo') {
+                html += `<div><span class="entry-type">📸</span></div>
+                        <img src="${entry.photoData}" class="photo-entry" alt="Foto">`;
+                if (entry.caption) {
+                    html += `<div class="photo-caption">"${escapeHtml(entry.caption)}"</div>`;
+                }
+            }
+            else if (entry.type === 'voice') {
+                const duration = entry.duration ? `(${Math.round(entry.duration / 1000)}s)` : '';
+                html += `<div><span class="entry-type">🎤</span></div>
+                        <div class="voice-entry">
+                            <audio controls class="audio-player" src="${entry.audioData}"></audio>
+                            <div class="audio-duration">${duration}</div>
+                        </div>`;
+            }
+
+            html += `<button class="entry-delete" onclick="deleteEntry('${currentDay}', ${idx})">Löschen</button>
+                    </div>`;
+
+            return html;
+        }
+
+        function addTextEntry() {
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) return showToast('⚠️ Bitte Text eingeben');
+
+            addEntry({
+                type: 'text',
+                content: text,
+                timestamp: new Date().toISOString()
+            });
+
+            document.getElementById('textInput').value = '';
+            renderTimeline();
+        }
+
+        function addPhotoEntry() {
+            if (!currentPhotoData) return showToast('⚠️ Bitte Foto wählen');
+
+            const caption = document.getElementById('captionText').value.trim();
+
+            addEntry({
+                type: 'photo',
+                photoData: currentPhotoData,
+                caption: caption,
+                timestamp: new Date().toISOString()
+            });
+
+            resetPhotoInput();
+            renderTimeline();
+        }
+
+        function addVoiceEntry() {
+            if (audioChunks.length === 0) return showToast('⚠️ Bitte zuerst aufnehmen');
+
+            const mimeType = getSupportedMimeType() || 'audio/mp4';
+            const audioBlob = new Blob(audioChunks, { type: mimeType });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            addEntry({
+                type: 'voice',
+                audioData: audioUrl,
+                duration: audioChunks.length,
+                timestamp: new Date().toISOString()
+            });
+
+            audioChunks = [];
+            resetVoiceInput();
+            renderTimeline();
+        }
+
+        function addEntry(entry) {
+            const data = loadData();
+            if (!data[currentDay]) return;
+            data[currentDay].entries.push(entry);
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                showToast('✅ Gespeichert');
+            } catch(e) {
+                showToast('❌ Speichern fehlgeschlagen (Speicher voll?)');
+            }
+        }
+
+        function deleteEntry(dayKey, idx) {
+            // confirm() blockiert in iOS In-App-Browsern — direkt löschen
+            const data = loadData();
+            if (!data[dayKey]) return;
+            data[dayKey].entries.splice(idx, 1);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            renderTimeline();
+            showToast('🗑 Eintrag gelöscht');
+        }
+
+        // ============ PHOTO HANDLING ============
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentPhotoData = e.target.result;
+                document.getElementById('photoCaptionDiv').style.display = 'block';
+                document.getElementById('textInputDiv').style.display = 'none';
+                document.getElementById('voiceInputDiv').style.display = 'none';
+                document.getElementById('photoPreview').innerHTML = `📸 ${file.name} (${(file.size / 1024).toFixed(0)}kb)`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetPhotoInput() {
+            currentPhotoData = null;
+            document.getElementById('photoInput').value = '';
+            document.getElementById('captionText').value = '';
+            document.getElementById('photoCaptionDiv').style.display = 'none';
+            stopVoiceCaption();
+        }
+
+        // ============ VOICE RECOGNITION (captions) ============
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        function setupVoiceRecognition() {
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.lang = 'de-DE';
+                recognition.continuous = true;
+                recognition.interimResults = true;
+            }
+        }
+
+        function toggleVoiceCaption() {
+            if (!recognition) return showToast('⚠️ Voice Recognition nicht verfügbar in diesem Browser');
+
+            const btn = document.getElementById('voiceCaptionBtn');
+            const status = document.getElementById('captionVoiceStatus');
+
+            if (btn.classList.contains('recording')) {
+                recognition.stop();
+                btn.classList.remove('recording');
+                btn.textContent = '🎤 Caption sprechen';
+                status.style.display = 'none';
+            } else {
+                document.getElementById('captionText').value = '';
+                document.getElementById('captionTranscript').textContent = '';
+                status.style.display = 'block';
+                btn.classList.add('recording');
+                btn.textContent = '⏹️ Stoppen';
+
+                recognition.onstart = () => {};
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    document.getElementById('captionText').value = transcript;
+                    document.getElementById('captionTranscript').textContent = `"${transcript}"`;
+                };
+                recognition.start();
+            }
+        }
+
+        function stopVoiceCaption() {
+            if (recognition) recognition.stop();
+            const btn = document.getElementById('voiceCaptionBtn');
+            btn.classList.remove('recording');
+            btn.textContent = '🎤 Caption sprechen';
+            document.getElementById('captionVoiceStatus').style.display = 'none';
+        }
+
+        // ============ VOICE RECORDING (memos) ============
+        // Safari unterstützt audio/webm NICHT — MIME-Type dynamisch ermitteln
+        function getSupportedMimeType() {
+            const types = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'];
+            for (const t of types) {
+                if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) return t;
+            }
+            return ''; // Browser wählt selbst
+        }
+
+        async function toggleVoiceRecording() {
+            if (!mediaRecorder) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const mimeType = getSupportedMimeType();
+                    const options = mimeType ? { mimeType } : {};
+                    mediaRecorder = new MediaRecorder(stream, options);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        document.getElementById('voiceSubmitBtn').disabled = false;
+                    };
+
+                    mediaRecorder.start(100); // timeslice für Safari
+                    document.getElementById('recordBtn').classList.add('recording');
+                    document.getElementById('recordBtn').textContent = '⏹️ Stoppen';
+                    document.getElementById('voiceStatus').style.display = 'block';
+                } catch(e) {
+                    showToast('❌ Mikrofon-Zugriff verweigert: ' + e.message);
+                }
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                mediaRecorder = null;
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('recordBtn').textContent = '🎤 Aufnahme starten';
+            }
+        }
+
+        // ============ UI TOGGLES ============
+        function toggleTextInput() {
+            const div = document.getElementById('textInputDiv');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('photoCaptionDiv').style.display = 'none';
+            document.getElementById('voiceInputDiv').style.display = 'none';
+        }
+
+        function toggleVoiceInput() {
+            const div = document.getElementById('voiceInputDiv');
+            div.style.display = div.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('textInputDiv').style.display = 'none';
+            document.getElementById('photoCaptionDiv').style.display = 'none';
+        }
+
+        function resetInputs() {
+            document.getElementById('textInputDiv').style.display = 'none';
+            document.getElementById('photoCaptionDiv').style.display = 'none';
+            document.getElementById('voiceInputDiv').style.display = 'none';
+            resetVoiceInput();
+            stopVoiceCaption();
+        }
+
+        function resetVoiceInput() {
+            audioChunks = [];
+            mediaRecorder = null;
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordBtn').textContent = '🎤 Aufnahme starten';
+            document.getElementById('voiceStatus').style.display = 'none';
+            document.getElementById('voiceSubmitBtn').disabled = true;
+        }
+
+        // ============ DATA PERSISTENCE ============
+        function loadData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : {};
+        }
+
+        function exportData() {
+            const data = loadData();
+            const html = generateExportHTML(data);
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Südtäler-Tagebuch-${new Date().toISOString().split('T')[0]}.html`;
+            a.click();
+        }
+
+        function generateExportHTML(data) {
+            let html = `<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Südtäler Tagebuch Export</title>
+                <style>
+                    body { font-family: sans-serif; max-width: 900px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+                    .day { background: white; padding: 30px; margin: 20px 0; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                    .day h2 { color: #667eea; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+                    .entry { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+                    .time { font-size: 0.9em; color: #999; }
+                    .text { white-space: pre-wrap; }
+                    img { max-width: 100%; border-radius: 8px; margin: 10px 0; }
+                    .caption { font-style: italic; color: #666; margin: 10px 0; }
+                </style>
+            </head>
+            <body>
+                <h1>🚌 Südtäler Tagebuch 2026</h1>
+                <p>Export vom ${new Date().toLocaleDateString('de-DE')}</p>`;
+
+            Object.keys(data).forEach(dayKey => {
+                const dayData = data[dayKey];
+                html += `<div class="day">
+                    <h2>📍 ${dayData.location}</h2>
+                    <p>${new Date(dayData.date).toLocaleDateString('de-DE')}</p>`;
+
+                dayData.entries.forEach(entry => {
+                    const time = new Date(entry.timestamp).toLocaleTimeString('de-DE');
+                    html += `<div class="entry"><div class="time">${time}</div>`;
+
+                    if (entry.type === 'text') {
+                        html += `<div class="text">${entry.content}</div>`;
+                    } else if (entry.type === 'photo') {
+                        html += `<img src="${entry.photoData}" alt="Foto">`;
+                        if (entry.caption) {
+                            html += `<div class="caption">"${entry.caption}"</div>`;
+                        }
+                    } else if (entry.type === 'voice') {
+                        html += `<p>🎤 Audio-Memo</p>`;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            html += `</body></html>`;
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleDebug() {
+            const panel = document.getElementById('debugPanel');
+            if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+
+            const checks = [];
+
+            // localStorage Test
+            try {
+                localStorage.setItem('_test', '1');
+                localStorage.removeItem('_test');
+                checks.push('✅ localStorage: OK');
+            } catch (e) {
+                checks.push('❌ localStorage: FEHLER — ' + e.message);
+            }
+
+            // MediaRecorder
+            checks.push('🎙 MediaRecorder: ' + (typeof MediaRecorder !== 'undefined' ? '✅ verfügbar' : '❌ nicht verfügbar'));
+            if (typeof MediaRecorder !== 'undefined') {
+                checks.push('&nbsp;&nbsp;MIME: ' + (getSupportedMimeType() || 'Browser-Standard'));
+            }
+
+            // SpeechRecognition
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            checks.push('🎤 SpeechRecognition: ' + (SR ? '✅ verfügbar' : '❌ nicht verfügbar (normal in Safari)'));
+
+            // Daten
+            const data = loadData();
+            checks.push('📊 Gespeicherte Tage: ' + Object.keys(data).length);
+
+            // Browser
+            checks.push('🌐 ' + navigator.userAgent.substring(0, 80));
+
+            panel.innerHTML = checks.join('<br>');
+            panel.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
