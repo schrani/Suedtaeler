@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferien-Checkliste – Camping &amp; Roadtrip</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #faf9f5;
+    color: #1a1a1a;
+    padding: 24px 20px 60px;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .subtitle { color: #6b6b6b; font-size: 0.9rem; margin-top: 4px; }
+
+  .progress-wrap {
+    position: sticky; top: 0; z-index: 10;
+    background: #faf9f5;
+    padding: 12px 0 14px;
+    margin-bottom: 8px;
+  }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: #6b6b6b; margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 8px; background: #e8e6e0; border-radius: 4px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, #c96442, #d97b52);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .sync-box {
+    margin-top: 4px;
+    border: 1px solid #ecebe6;
+    border-radius: 10px;
+    background: #fff;
+    padding: 10px 12px;
+  }
+  .sync-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; font-size: 0.8rem; color: #555;
+  }
+  .sync-row button {
+    font-size: 0.78rem; padding: 5px 10px;
+  }
+  #sync-status { font-size: 0.8rem; }
+  .sync-panel { margin-top: 10px; display: none; }
+  .sync-panel.show { display: block; }
+  .sync-hint {
+    font-size: 0.78rem; color: #8a8a8a; margin-bottom: 8px; line-height: 1.4;
+  }
+  .sync-panel input[type="password"] {
+    width: 100%; font: inherit; font-size: 0.85rem;
+    padding: 8px 10px; border: 1px solid #dddbd3; border-radius: 7px;
+    margin-bottom: 8px;
+  }
+  .sync-actions { display: flex; gap: 8px; }
+
+  .section { margin-top: 24px; }
+  .section-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  h2 { font-size: 1.05rem; font-weight: 650; }
+  .section-count { font-size: 0.75rem; color: #9b9b9b; font-variant-numeric: tabular-nums; }
+
+  .group-title {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+    color: #9b9b9b; font-weight: 600;
+    margin: 14px 0 6px 2px;
+  }
+
+  ul { list-style: none; }
+  li {
+    background: #ffffff;
+    border: 1px solid #ecebe6;
+    border-radius: 8px;
+    margin-bottom: 5px;
+  }
+  label {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    user-select: none;
+  }
+  input[type="checkbox"] {
+    width: 19px; height: 19px;
+    accent-color: #c96442;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  li.done { background: #f4f3ee; border-color: #eceae2; }
+  li.done label { color: #a5a29a; text-decoration: line-through; }
+
+  .footer-actions { margin-top: 32px; display: flex; gap: 10px; }
+  button {
+    font: inherit; font-size: 0.85rem;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #dddbd3;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+  }
+  button:hover { background: #f4f3ee; }
+  .done-banner {
+    display: none;
+    margin-top: 24px;
+    padding: 16px;
+    background: #eef5ec;
+    border: 1px solid #cfe3ca;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    color: #3a6b34;
+  }
+  .done-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏕️ Ferien-Checkliste</h1>
+  <div class="subtitle">Camping &amp; Roadtrip · Fortschritt wird automatisch gespeichert</div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span id="progress-text">0 von 0 erledigt</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<div class="sync-box">
+  <div class="sync-row">
+    <span id="sync-status">🔌 Nicht verbunden</span>
+    <button id="sync-toggle" type="button">Sync einrichten</button>
+  </div>
+  <div class="sync-panel" id="sync-panel">
+    <p class="sync-hint">GitHub-Token einfügen, um diese Checkliste zwischen Geräten zu synchronisieren (Repo: schrani/suedtaeler). Der Token bleibt nur auf diesem Gerät gespeichert. Letzter Speicherstand gewinnt.</p>
+    <input type="password" id="token-input" placeholder="ghp_… oder github_pat_…" autocomplete="off">
+    <div class="sync-actions">
+      <button id="token-save" type="button">Verbinden</button>
+      <button id="token-clear" type="button">Trennen</button>
+      <button id="sync-now" type="button">↻ Jetzt synchronisieren</button>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2>📋 Vorbereitung</h2>
+    <span class="section-count" data-count="prep"></span>
+  </div>
+
+  <div class="group-title">Dokumente &amp; Administratives</div>
+  <ul data-section="prep">
+    <li><label><input type="checkbox" data-id="prep-id"> ID / Pass prüfen (Gültigkeit!)</label></li>
+    <li><label><input type="checkbox" data-id="prep-fuehrerschein"> Führerausweis &amp; Fahrzeugausweis</label></li>
+    <li><label><input type="checkbox" data-id="prep-vignette"> Vignetten / Maut fürs Zielland klären</label></li>
+    <li><label><input type="checkbox" data-id="prep-gruenekarte"> Grüne Versicherungskarte (bei Auslandfahrt)</label></li>
+    <li><label><input type="checkbox" data-id="prep-versicherung"> Reise- / Annullationsversicherung prüfen</label></li>
+    <li><label><input type="checkbox" data-id="prep-krankenkasse"> Auslanddeckung Krankenkasse prüfen</label></li>
+    <li><label><input type="checkbox" data-id="prep-kreditkarte"> Kreditkarte: Limite &amp; Auslandnutzung prüfen</label></li>
+    <li><label><input type="checkbox" data-id="prep-bargeld"> Bargeld in Landeswährung besorgen</label></li>
+  </ul>
+
+  <div class="group-title">Fahrzeug</div>
+  <ul data-section="prep">
+    <li><label><input type="checkbox" data-id="prep-service"> Fahrzeugcheck: Öl, Wasser, Reifen, Bremsen</label></li>
+    <li><label><input type="checkbox" data-id="prep-pannenset"> Pannendreieck, Weste, Ersatzrad prüfen</label></li>
+    <li><label><input type="checkbox" data-id="prep-pannendienst"> Pannendienst-Abdeckung im Ausland (TCS o.ä.)</label></li>
+    <li><label><input type="checkbox" data-id="prep-dachbox"> Dachbox / Veloträger montieren</label></li>
+  </ul>
+
+  <div class="group-title">Buchungen &amp; Route</div>
+  <ul data-section="prep">
+    <li><label><input type="checkbox" data-id="prep-route"> Route grob planen, Etappen festlegen</label></li>
+    <li><label><input type="checkbox" data-id="prep-camping"> Campingplätze für erste Nächte reservieren</label></li>
+    <li><label><input type="checkbox" data-id="prep-offline"> Offline-Karten herunterladen</label></li>
+    <li><label><input type="checkbox" data-id="prep-apps"> Camping-Apps installieren (park4night o.ä.)</label></li>
+  </ul>
+
+  <div class="group-title">Zuhause vor Abreise</div>
+  <ul data-section="prep">
+    <li><label><input type="checkbox" data-id="prep-post"> Post umleiten oder Nachbarn bitten</label></li>
+    <li><label><input type="checkbox" data-id="prep-pflanzen"> Pflanzen-Giessdienst organisieren</label></li>
+    <li><label><input type="checkbox" data-id="prep-kuehlschrank"> Kühlschrank leeren, Abfall raus</label></li>
+    <li><label><input type="checkbox" data-id="prep-stecker"> Geräte ausstecken, Fenster schliessen</label></li>
+  </ul>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2>🎒 Packliste</h2>
+    <span class="section-count" data-count="pack"></span>
+  </div>
+
+  <div class="group-title">Camping-Ausrüstung</div>
+  <ul data-section="pack">
+    <li><label><input type="checkbox" data-id="pack-zelt"> Zelt inkl. Heringe &amp; Unterlage</label></li>
+    <li><label><input type="checkbox" data-id="pack-schlafsack"> Schlafsäcke &amp; Matten / Luftmatratzen</label></li>
+    <li><label><input type="checkbox" data-id="pack-kissen"> Kissen &amp; Decken</label></li>
+    <li><label><input type="checkbox" data-id="pack-stuehle"> Campingstühle &amp; Tisch</label></li>
+    <li><label><input type="checkbox" data-id="pack-lampe"> Stirnlampe / Campinglampe + Batterien</label></li>
+    <li><label><input type="checkbox" data-id="pack-hammer"> Gummihammer &amp; Reparatur-Set</label></li>
+  </ul>
+
+  <div class="group-title">Küche &amp; Verpflegung</div>
+  <ul data-section="pack">
+    <li><label><input type="checkbox" data-id="pack-kocher"> Gaskocher + Gaskartuschen</label></li>
+    <li><label><input type="checkbox" data-id="pack-geschirr"> Geschirr, Besteck, Pfanne, Kessel</label></li>
+    <li><label><input type="checkbox" data-id="pack-kuehlbox"> Kühlbox + Kühlelemente</label></li>
+    <li><label><input type="checkbox" data-id="pack-messer"> Sackmesser / Dosenöffner / Korkenzieher</label></li>
+    <li><label><input type="checkbox" data-id="pack-abwasch"> Abwaschmittel, Schwamm, Küchentücher</label></li>
+    <li><label><input type="checkbox" data-id="pack-grundnahrung"> Grundvorrat: Kaffee, Pasta, Gewürze, Öl</label></li>
+    <li><label><input type="checkbox" data-id="pack-wasser"> Wasserkanister</label></li>
+    <li><label><input type="checkbox" data-id="pack-haushaltpapier"> Haushaltpapier</label></li>
+  </ul>
+
+  <div class="group-title">Kleider</div>
+  <ul data-section="pack">
+    <li><label><input type="checkbox" data-id="pack-kleider"> Kleider fürs Wetter (Zwiebelprinzip)</label></li>
+    <li><label><input type="checkbox" data-id="pack-regen"> Regenjacke</label></li>
+    <li><label><input type="checkbox" data-id="pack-schuhe"> Wanderschuhe + bequeme Schuhe</label></li>
+    <li><label><input type="checkbox" data-id="pack-bade"> Badehose / Badetuch</label></li>
+    <li><label><input type="checkbox" data-id="pack-warm"> Warme Schicht für kühle Abende</label></li>
+    <li><label><input type="checkbox" data-id="pack-hut"> Hut / Kopfbedeckung</label></li>
+  </ul>
+
+  <div class="group-title">Hygiene &amp; Gesundheit</div>
+  <ul data-section="pack">
+    <li><label><input type="checkbox" data-id="pack-toilette"> Toilettenartikel</label></li>
+    <li><label><input type="checkbox" data-id="pack-sonnencreme"> Sonnencreme &amp; Sonnenbrille</label></li>
+    <li><label><input type="checkbox" data-id="pack-mueckenspray"> Mückenspray</label></li>
+    <li><label><input type="checkbox" data-id="pack-apotheke"> Reiseapotheke (Pflaster, Schmerzmittel, Zeckenzange)</label></li>
+    <li><label><input type="checkbox" data-id="pack-medis"> Persönliche Medikamente</label></li>
+    <li><label><input type="checkbox" data-id="pack-desinfektion"> Desinfektionsmittel / Feuchttücher</label></li>
+    <li><label><input type="checkbox" data-id="pack-kokosoel"> Kokosöl</label></li>
+    <li><label><input type="checkbox" data-id="pack-tuch-gross"> Grosses Tuch</label></li>
+    <li><label><input type="checkbox" data-id="pack-tuch-mittel"> Mittleres Tuch</label></li>
+  </ul>
+
+  <div class="group-title">Elektronik &amp; Diverses</div>
+  <ul data-section="pack">
+    <li><label><input type="checkbox" data-id="pack-ladekabel"> Ladekabel &amp; Powerbank</label></li>
+    <li><label><input type="checkbox" data-id="pack-adapter"> Auto-Ladeadapter / Steckdosenadapter</label></li>
+    <li><label><input type="checkbox" data-id="pack-kamera"> Kamera</label></li>
+    <li><label><input type="checkbox" data-id="pack-spiele"> Karten- / Reisespiele, Buch</label></li>
+    <li><label><input type="checkbox" data-id="pack-sackmesser"> Feuerzeug / Zündhölzer</label></li>
+    <li><label><input type="checkbox" data-id="pack-abfallsack"> Abfallsäcke</label></li>
+    <li><label><input type="checkbox" data-id="pack-schaechteli"> Schächteli</label></li>
+    <li><label><input type="checkbox" data-id="pack-kissenbezug"> Alter Kissenbezug</label></li>
+    <li><label><input type="checkbox" data-id="pack-raetselheft"> Rätselheft</label></li>
+  </ul>
+</div>
+
+<div class="done-banner" id="done-banner">🎉 Alles erledigt – gute Reise!</div>
+
+<div class="footer-actions">
+  <button id="reset-btn">Alles zurücksetzen</button>
+</div>
+
+<script>
+(function () {
+  var KEY = 'ferien-checkliste-camping-v1';
+  var TOKEN_KEY = 'ferien-checkliste-camping-gh-token';
+  var SHA_KEY = 'ferien-checkliste-camping-gh-sha';
+  var GH_OWNER = 'schrani';
+  var GH_REPO = 'suedtaeler';
+  var GH_PATH = 'sync/ferien-checkliste-state.json';
+  var GH_API = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + GH_PATH;
+
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { state = {}; }
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type="checkbox"]'));
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+
+  function applyStateToBoxes() {
+    boxes.forEach(function (b) {
+      var id = b.getAttribute('data-id');
+      b.checked = !!state[id];
+    });
+  }
+
+  function update() {
+    var total = boxes.length, done = 0;
+    var perSection = {};
+    boxes.forEach(function (b) {
+      var li = b.closest('li');
+      var sec = b.closest('ul').getAttribute('data-section');
+      perSection[sec] = perSection[sec] || { t: 0, d: 0 };
+      perSection[sec].t++;
+      if (b.checked) { done++; perSection[sec].d++; li.classList.add('done'); }
+      else { li.classList.remove('done'); }
+    });
+    var pct = total ? Math.round(done / total * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = done + ' von ' + total + ' erledigt';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.querySelectorAll('.section-count').forEach(function (el) {
+      var s = perSection[el.getAttribute('data-count')];
+      if (s) el.textContent = s.d + ' / ' + s.t;
+    });
+    document.getElementById('done-banner').classList.toggle('show', total > 0 && done === total);
+  }
+
+  boxes.forEach(function (b) {
+    var id = b.getAttribute('data-id');
+    b.checked = !!state[id];
+    b.addEventListener('change', function () {
+      state[id] = b.checked;
+      save();
+      update();
+      syncPush();
+    });
+  });
+
+  document.getElementById('reset-btn').addEventListener('click', function () {
+    if (!confirm('Wirklich alle Häkchen zurücksetzen?')) return;
+    state = {};
+    save();
+    boxes.forEach(function (b) { b.checked = false; });
+    update();
+    syncPush();
+  });
+
+  update();
+
+  // ---- GitHub sync ----
+  var statusEl = document.getElementById('sync-status');
+  var panelEl = document.getElementById('sync-panel');
+  var toggleBtn = document.getElementById('sync-toggle');
+  var tokenInput = document.getElementById('token-input');
+  var saveBtn = document.getElementById('token-save');
+  var clearBtn = document.getElementById('token-clear');
+  var nowBtn = document.getElementById('sync-now');
+
+  function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+
+  function setSyncStatus(text) { statusEl.textContent = text; }
+
+  function refreshConnectedUI() {
+    if (getToken()) {
+      toggleBtn.textContent = 'Sync-Einstellungen';
+      setSyncStatus('🔄 Verbunden');
+    } else {
+      toggleBtn.textContent = 'Sync einrichten';
+      setSyncStatus('🔌 Nicht verbunden');
+    }
+  }
+
+  toggleBtn.addEventListener('click', function () {
+    panelEl.classList.toggle('show');
+  });
+
+  function b64EncodeUnicode(str) {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
+      return String.fromCharCode('0x' + p1);
+    }));
+  }
+  function b64DecodeUnicode(str) {
+    return decodeURIComponent(atob(str.replace(/\n/g, '')).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+  }
+
+  function ghHeaders() {
+    return {
+      'Authorization': 'token ' + getToken(),
+      'Accept': 'application/vnd.github+json'
+    };
+  }
+
+  function syncPull(cb) {
+    if (!getToken()) { cb && cb(false); return; }
+    setSyncStatus('⏳ lädt…');
+    fetch(GH_API, { headers: ghHeaders() })
+      .then(function (r) {
+        if (r.status === 404) return null;
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (data) {
+          localStorage.setItem(SHA_KEY, data.sha);
+          var remote = JSON.parse(b64DecodeUnicode(data.content));
+          state = remote;
+          save();
+          applyStateToBoxes();
+          update();
+        }
+        setSyncStatus('✅ synchronisiert · ' + new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }));
+        cb && cb(true);
+      })
+      .catch(function (err) {
+        setSyncStatus('⚠️ Fehler: ' + err.message);
+        cb && cb(false);
+      });
+  }
+
+  var pushTimer = null;
+  function syncPush() {
+    if (!getToken()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(function () {
+      setSyncStatus('💾 speichert…');
+      var body = {
+        message: 'Update Checkliste ' + new Date().toISOString(),
+        content: b64EncodeUnicode(JSON.stringify(state, null, 2))
+      };
+      var sha = localStorage.getItem(SHA_KEY);
+      if (sha) body.sha = sha;
+      fetch(GH_API, {
+        method: 'PUT',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders()),
+        body: JSON.stringify(body)
+      })
+        .then(function (r) {
+          if (r.status === 409) { syncPull(function () { syncPush(); }); return null; }
+          if (!r.ok) return r.json().then(function (e) { throw new Error(e.message || ('HTTP ' + r.status)); });
+          return r.json();
+        })
+        .then(function (data) {
+          if (data && data.content) {
+            localStorage.setItem(SHA_KEY, data.content.sha);
+            setSyncStatus('✅ synchronisiert · ' + new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }));
+          }
+        })
+        .catch(function (err) {
+          setSyncStatus('⚠️ Fehler beim Speichern: ' + err.message);
+        });
+    }, 600);
+  }
+
+  saveBtn.addEventListener('click', function () {
+    var t = tokenInput.value.trim();
+    if (!t) return;
+    localStorage.setItem(TOKEN_KEY, t);
+    tokenInput.value = '';
+    refreshConnectedUI();
+    syncPull();
+  });
+
+  clearBtn.addEventListener('click', function () {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(SHA_KEY);
+    refreshConnectedUI();
+  });
+
+  nowBtn.addEventListener('click', function () { syncPull(); });
+
+  refreshConnectedUI();
+  if (getToken()) syncPull();
+})();
+</script>
+
+</body>
+</html>
