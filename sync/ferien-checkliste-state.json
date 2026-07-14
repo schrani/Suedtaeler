@@ -1,5 +1,6 @@
 {
   "prep-id": true,
   "prep-fuehrerschein": true,
-  "prep-vignette": true
+  "prep-vignette": true,
+  "prep-krankenkasse": true
 }
