@@ -2,5 +2,6 @@
   "prep-id": true,
   "prep-fuehrerschein": true,
   "prep-vignette": true,
-  "prep-krankenkasse": true
+  "prep-krankenkasse": true,
+  "prep-gruenekarte": true
 }
