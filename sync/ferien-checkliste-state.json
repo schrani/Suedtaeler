@@ -4,5 +4,6 @@
   "prep-vignette": true,
   "prep-krankenkasse": true,
   "prep-gruenekarte": true,
-  "prep-route": true
+  "prep-route": true,
+  "pack-kissenbezug": true
 }
